@@ -9,7 +9,8 @@ default_fetch:
   end_date: '2025-01-01'
   order_book_depth: 5
   start_date: '2024-01-01'
-  symbol: EURUSD
+  # Symbol should include a slash, e.g. "EUR/USD"
+  symbol: EUR/USD
   timeframe: M5
 indicators:
   adx:
