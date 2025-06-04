@@ -355,27 +355,27 @@ order_book_depth = st.sidebar.selectbox(
 # Настройки симуляции
 simulation_cfg = cfg.setdefault("simulation", {})
 # Даем значения по умолчанию, если раздел отсутствует
- init_balance = st.sidebar.number_input(
+init_balance = st.sidebar.number_input(
      "Initial Balance",
      value=simulation_cfg.get("initial_balance", 1000.0),
      format="%f"
-
- lot_size = st.sidebar.number_input(
+)
+lot_size = st.sidebar.number_input(
      "Lot Size",
      value=simulation_cfg.get("lot_size", 0.1),
      format="%f"
  )
- stop_loss_pips_s = st.sidebar.number_input(
+stop_loss_pips_s = st.sidebar.number_input(
      "StopLoss (pips)",
      value=simulation_cfg.get("stop_loss_pips", 20),
      format="%d"
  )
- take_profit_pips_s = st.sidebar.number_input(
+take_profit_pips_s = st.sidebar.number_input(
      "TakeProfit (pips)",
      value=simulation_cfg.get("take_profit_pips", 50),
      format="%d"
  )
- label_N = st.sidebar.number_input(
+label_N = st.sidebar.number_input(
      "N баров для меток",
      value=simulation_cfg.get("label_N", 10),
      min_value=1,
