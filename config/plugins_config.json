@@ -6,7 +6,7 @@
   "strategies": [],
   "strategies_params": {},
   "default_fetch": {
-    "symbol": "EURUSD",
+    "symbol": "EUR/USD",
     "timeframe": "M5",
     "start_date": "2024-01-01",
     "end_date": "2025-01-01",

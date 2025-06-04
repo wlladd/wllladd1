@@ -86,7 +86,7 @@ if st.sidebar.button("Сохранить настройки"):
 if st.sidebar.button("Проверить API"):
     try:
         _ = data_fetcher.get_historical_data(
-            symbol="EURUSD", timeframe="M1", start="2025-01-01", end="2025-01-02"
+            symbol="EUR/USD", timeframe="M1", start="2025-01-01", end="2025-01-02"
         )
         st.sidebar.success("API доступен, данные получены.")
     except Exception as e:
@@ -329,7 +329,8 @@ st.sidebar.subheader("Дефолты: Данные/Симуляция/Бэкте
 # Настройки fetch
 default_fetch = cfg.setdefault("default_fetch", {})
 symbol = st.sidebar.text_input(
-    "Symbol", default_fetch.get("symbol", "EURUSD")
+    "Symbol", default_fetch.get("symbol", "EUR/USD")
+    # Use slash format like "EUR/USD"
 )
 timeframe = st.sidebar.selectbox(
     "Timeframe",
