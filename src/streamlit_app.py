@@ -347,10 +347,13 @@ collect_ob = st.sidebar.checkbox(
     "Собирать стакан (order book)?",
     default_fetch.get("collect_order_book", False)
 )
+
 order_book_depth = st.sidebar.selectbox(
     "Depth",
     [5, 10, 20, 50],
-    index=[5, 10, 20, 50].index(default_fetch.get("order_book_depth", 5))
+    index=[5, 10, 20, 50].index(
+        default_fetch.get("order_book_depth", 5)
+    ),
 )
 
 # Настройки симуляции
