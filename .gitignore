@@ -1,0 +1,18 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+Режим вывода команд на экран (ECHO) отключен.
+# Virtual environment folder
+venv311/
+Режим вывода команд на экран (ECHO) отключен.
+# VSCode / IDE settings
+.vscode/
+.idea/
+Режим вывода команд на экран (ECHO) отключен.
+# Database and log files
+data/project.db
+logs/
+Режим вывода команд на экран (ECHO) отключен.
+# Environment files
+*.env
