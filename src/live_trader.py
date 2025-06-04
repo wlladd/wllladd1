@@ -14,7 +14,12 @@ class LiveTrader:
     def __init__(self, cfg: dict):
         self.cfg = cfg
         self.db = DBManager(cfg["data"]["db_path"])
-        self.fetcher = DataFetcher(cfg["api"]["base_url"], cfg["api"]["api_key"], self.db)
+        self.fetcher = DataFetcher(
+            cfg["api"]["base_url"],
+            cfg["api"].get("api_key", ""),
+            cfg["api"].get("api_secret", ""),
+            self.db
+        )
         self.feature_gen = FeatureGenerator(cfg, self.db)
         self.notifier = TelegramNotifier(cfg["telegram"]["token"], cfg["telegram"]["chat_id"])
 
@@ -185,8 +190,8 @@ class LiveTrader:
         try:
             open_orders = self.fetcher.get_open_orders()
             for ord in open_orders:
-                order_id = ord.get("order_id")
-                self.fetcher.cancel_order(order_id)
+                order_id = ord.get("orderId") or ord.get("order_id")
+                self.fetcher.cancel_order(order_id, self.symbol)
             if self.cfg["telegram"]["send_on_order_close"]:
                 self.notifier.send_message("Все открытые ордера отменены вручную.")
         except Exception as e:
