@@ -24,6 +24,9 @@ from model_manager import ModelManager
 from live_trader import LiveTrader
 from telegram_notifier import TelegramNotifier
 
+# Ensure the logs directory exists before configuring logging
+os.makedirs("logs", exist_ok=True)
+
 # --- 0. Логирование ---
 logging.basicConfig(
     level=logging.INFO,
