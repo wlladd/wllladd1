@@ -42,6 +42,7 @@ db = DBManager(cfg.get("data", {}).get("db_path", "data/project.db"))
 data_fetcher = DataFetcher(
     cfg.get("api", {}).get("base_url", ""),
     cfg.get("api", {}).get("api_key", ""),
+    cfg.get("api", {}).get("api_secret", ""),
     db
 )
 ind_manager = IndicatorManager()
@@ -355,33 +356,33 @@ order_book_depth = st.sidebar.selectbox(
 # Настройки симуляции
 simulation_cfg = cfg.setdefault("simulation", {})
 # Даем значения по умолчанию, если раздел отсутствует
- init_balance = st.sidebar.number_input(
-     "Initial Balance",
-     value=simulation_cfg.get("initial_balance", 1000.0),
-     format="%f"
 
- lot_size = st.sidebar.number_input(
-     "Lot Size",
-     value=simulation_cfg.get("lot_size", 0.1),
-     format="%f"
- )
- stop_loss_pips_s = st.sidebar.number_input(
-     "StopLoss (pips)",
-     value=simulation_cfg.get("stop_loss_pips", 20),
-     format="%d"
- )
- take_profit_pips_s = st.sidebar.number_input(
-     "TakeProfit (pips)",
-     value=simulation_cfg.get("take_profit_pips", 50),
-     format="%d"
- )
- label_N = st.sidebar.number_input(
-     "N баров для меток",
-     value=simulation_cfg.get("label_N", 10),
-     min_value=1,
-     step=1
- )
-
+init_balance = st.sidebar.number_input(
+    "Initial Balance",
+    value=simulation_cfg.get("initial_balance", 1000.0),
+    format="%f"
+)
+lot_size = st.sidebar.number_input(
+    "Lot Size",
+    value=simulation_cfg.get("lot_size", 0.1),
+    format="%f"
+)
+stop_loss_pips_s = st.sidebar.number_input(
+    "StopLoss (pips)",
+    value=simulation_cfg.get("stop_loss_pips", 20),
+    format="%d"
+)
+take_profit_pips_s = st.sidebar.number_input(
+    "TakeProfit (pips)",
+    value=simulation_cfg.get("take_profit_pips", 50),
+    format="%d"
+)
+label_N = st.sidebar.number_input(
+    "N баров для меток",
+    value=simulation_cfg.get("label_N", 10),
+    min_value=1,
+    step=1
+)
 # Сохраняем обратно в cfg["simulation"]
 simulation_cfg["initial_balance"] = float(init_balance)
 simulation_cfg["lot_size"] = float(lot_size)
