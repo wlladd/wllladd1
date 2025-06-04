@@ -38,32 +38,73 @@ class DataFetcher:
         return requests.get(url, params=params)
 
     def get_historical_data(self, symbol: str, timeframe: str, start: str, end: str) -> pd.DataFrame:
+        """Return candles in the given range respecting the 1000 record limit.
+
+        The ``/api/v2/klines`` endpoint returns at most 1000 candles per
+        request.  This method calculates how many milliseconds 1000 candles
+        cover for the provided ``timeframe`` and splits the ``[start, end]``
+        interval into chunks of that size.  Each chunk is requested
+        sequentially and the results are concatenated.  If ``self.db`` is set
+        the final dataframe is also inserted into the database.
+        """
+
         start_ts = int(pd.to_datetime(start).timestamp() * 1000)
         end_ts = int(pd.to_datetime(end).timestamp() * 1000)
-        params = {
-            "symbol": symbol,
-            "interval": timeframe,
-            "startTime": start_ts,
-            "endTime": end_ts,
-            "limit": 1000
+
+        tf_map = {
+            "M1": pd.Timedelta(minutes=1),
+            "M5": pd.Timedelta(minutes=5),
+            "M15": pd.Timedelta(minutes=15),
+            "H1": pd.Timedelta(hours=1),
+            "H4": pd.Timedelta(hours=4),
+            "D1": pd.Timedelta(days=1),
         }
-        resp = self._public_get("/api/v2/klines", params=params)
-        resp.raise_for_status()
-        data = resp.json()
-        records = []
-        for bar in data:
-            ts = dt.datetime.fromtimestamp(bar[0] / 1000)
-            records.append({
-                "Datetime": ts,
-                "Open": float(bar[1]),
-                "High": float(bar[2]),
-                "Low": float(bar[3]),
-                "Close": float(bar[4]),
-                "Volume": float(bar[5])
-            })
-        df = pd.DataFrame(records).set_index("Datetime").sort_index()
-        if self.db:
+
+        if timeframe not in tf_map:
+            raise ValueError(f"Unsupported timeframe: {timeframe}")
+
+        tf_ms = int(tf_map[timeframe].total_seconds() * 1000)
+        chunk_ms = tf_ms * 1000
+
+        frames = []
+        cur_start = start_ts
+        while cur_start <= end_ts:
+            cur_end = min(end_ts, cur_start + chunk_ms - tf_ms)
+            params = {
+                "symbol": symbol,
+                "interval": timeframe,
+                "startTime": cur_start,
+                "endTime": cur_end,
+                "limit": 1000,
+            }
+            resp = self._public_get("/api/v2/klines", params=params)
+            resp.raise_for_status()
+            data = resp.json()
+            records = []
+            for bar in data:
+                ts = dt.datetime.fromtimestamp(bar[0] / 1000)
+                records.append({
+                    "Datetime": ts,
+                    "Open": float(bar[1]),
+                    "High": float(bar[2]),
+                    "Low": float(bar[3]),
+                    "Close": float(bar[4]),
+                    "Volume": float(bar[5]),
+                })
+            if records:
+                frames.append(pd.DataFrame(records))
+            if not data or len(data) < 1000:
+                break
+            cur_start = data[-1][0] + tf_ms
+
+        if frames:
+            df = pd.concat(frames).set_index("Datetime").sort_index()
+        else:
+            df = pd.DataFrame(columns=["Open", "High", "Low", "Close", "Volume"])
+
+        if self.db and not df.empty:
             self.db.insert_candles(df, symbol, timeframe)
+
         return df
 
     def get_order_book(self, symbol: str, depth: int = 5) -> dict:
