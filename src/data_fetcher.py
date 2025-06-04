@@ -9,20 +9,46 @@ import hashlib
 import urllib.parse
 
 class DataFetcher:
-    def __init__(self, base_url: str, api_key: str, api_secret: str, db_manager=None):
+    def __init__(self, base_url: str, api_key: str, api_secret: str,
+                 db_manager=None, header_name: str = "X-MBXAPIKEY"):
+        """Initialize fetcher with authentication details.
+
+        Parameters
+        ----------
+        base_url : str
+            REST API base url.
+        api_key : str
+            API key value.
+        api_secret : str
+            API secret for signing requests.
+        db_manager : optional
+            Instance managing DB interactions.
+        header_name : str, default ``"X-MBXAPIKEY"``
+            Name of the HTTP header carrying the API key.  Older versions of
+            the API used ``"X-MBX-APIKEY"`` – pass this value for backward
+            compatibility.
+        """
         self.base_url = base_url.rstrip('/')
         self.api_key = api_key
         self.api_secret = api_secret
         self.db = db_manager
+        self.header_name = header_name
 
-    def _signed_request(self, method: str, endpoint: str, params: dict = None):
+    def _signed_request(
+        self,
+        method: str,
+        endpoint: str,
+        params: dict = None,
+        header_name: str | None = None,
+    ):
         if params is None:
             params = {}
         params['timestamp'] = int(time.time() * 1000)
         query = urllib.parse.urlencode(params, doseq=True)
         signature = hmac.new(self.api_secret.encode(), query.encode(), hashlib.sha256).hexdigest()
         params['signature'] = signature
-        headers = {'X-MBX-APIKEY': self.api_key}
+        hdr = header_name or self.header_name
+        headers = {hdr: self.api_key}
         url = f"{self.base_url}{endpoint}"
         if method == 'GET':
             return requests.get(url, params=params, headers=headers)
